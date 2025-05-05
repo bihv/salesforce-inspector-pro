@@ -1,0 +1,496 @@
+#result-table table {
+  border: none;
+}
+
+#result-table table tr td:first-child {
+  border-left: none;
+  padding-left: 8px;
+}
+
+#result-table table tr:hover>td {
+  background-color: #F3F2F2;
+}
+
+.scrolltable-scrolled {
+  position: relative;
+}
+
+.scrolltable-scrolled table {
+  border-collapse: collapse;
+  position: absolute;
+}
+
+.scrolltable-cell {
+  border: 1px solid #DDDBDA;
+  overflow: hidden;
+  padding: 0 4px;
+  background-color: white;
+  white-space: pre;
+  box-sizing: border-box;
+}
+
+.scrolltable-cell.header {
+  font-weight: 700;
+  background-color: #FAFAF9;
+  border-top: none;
+  padding-top: 7px;
+  padding-bottom: 7px;
+  position: relative;
+  padding-right: 50px; /* Thêm padding bên phải để tránh đè lên label */
+}
+
+/* Styling cho nút copy và filter trong header */
+.scrolltable-cell .header-copy-btn {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  /* transform: translateY(-50%); */
+  width: 16px;
+  height: 16px;
+  background-image: url('images/copy.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.scrolltable-cell .header-copy-btn:hover {
+  opacity: 1;
+}
+
+.scrolltable-cell .header-filter-btn {
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  /* transform: translateY(-50%); */
+  width: 16px;
+  height: 16px;
+  background-image: url('images/filter.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.scrolltable-cell .header-filter-btn:hover {
+  opacity: 1;
+}
+
+/* Trạng thái filter đang hoạt động */
+.scrolltable-cell .header-filter-btn.filter-active {
+  opacity: 1; /* Tăng độ hiển thị lên thành 1 */
+  background-color: transparent;
+  mask-image: url('images/filter.svg');
+  -webkit-mask-image: url('images/filter.svg');
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  background-image: none;
+  position: relative;
+}
+
+.scrolltable-cell .header-filter-btn.filter-active::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #0070D2;
+  mask-image: url('images/filter.svg');
+  -webkit-mask-image: url('images/filter.svg');
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  top: 0;
+  left: 0;
+}
+
+/* Reset all filters button */
+.reset-filters-btn {
+  position: fixed;
+  right: 35px;
+  top: 10px;
+  z-index: 1000;
+  padding: 5px 10px;
+  background-color: #0070D2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex; /* Thay đổi từ none sang flex để luôn hiển thị */
+  align-items: center;
+}
+
+.reset-filters-btn:hover {
+  background-color: #005FB2;
+  color: white;
+}
+
+.filter-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Thông báo sao chép */
+.copy-notification {
+  position: fixed;
+  background-color: #4CAF50;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 3px;
+  z-index: 1000;
+  animation: fadeIn 0.3s;
+  font-size: 12px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.copy-notification.fade-out {
+  animation: fadeOut 0.5s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-10px); }
+}
+
+/* Menu tùy chọn sao chép */
+.copy-options-menu {
+  position: fixed; /* Thay đổi từ absolute sang fixed để không bị cắt bởi container cha */
+  background-color: white;
+  border: 1px solid #DDDBDA;
+  border-radius: 3px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  z-index: 1000; /* Tăng z-index để không bị che khuất */
+  width: 180px;
+}
+
+.copy-option {
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.copy-option:hover {
+  background-color: #F3F2F2;
+}
+
+/* Dialog lọc */
+.filter-dialog {
+  position: fixed;
+  background-color: white;
+  border: 1px solid #DDDBDA;
+  border-radius: 5px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  width: 300px;
+  max-height: 80vh; /* Giới hạn chiều cao theo viewport */
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  font-size: 13px;
+  transform: none; /* Bỏ transform mặc định */
+  max-width: 90vw; /* Giới hạn chiều rộng theo viewport */
+}
+
+/* Đảm bảo dialog không bị cắt bởi cạnh trình duyệt */
+@media (max-width: 500px) {
+  .filter-dialog {
+    width: 90vw;
+    left: 5vw !important;
+  }
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #ECEBEA;
+  font-weight: bold;
+}
+
+.filter-close {
+  cursor: pointer;
+}
+
+.filter-search {
+  padding: 8px;
+  margin: 8px;
+  border: 1px solid #DDDBDA;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.filter-options {
+  overflow-y: auto;
+  max-height: 250px;
+  padding: 0 8px;
+}
+
+.filter-option {
+  padding: 5px 0;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s;
+  border-radius: 3px;
+}
+
+.filter-option:hover {
+  background-color: #F3F2F2;
+}
+
+.filter-option input[type="checkbox"] {
+  margin-right: 8px;
+  cursor: pointer;
+  width: 14px;
+  height: 14px;
+}
+
+.filter-option label {
+  flex: 1;
+  cursor: pointer;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filter-actions {
+  padding: 10px;
+  border-top: 1px solid #ECEBEA;
+  display: flex;
+  justify-content: space-between;
+}
+
+.filter-actions button {
+  cursor: pointer;
+  background-color: #0070D2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  transition: background-color 0.2s ease;
+  min-width: 80px;
+  position: relative;
+  overflow: hidden;
+  margin: 0 3px;
+}
+
+.filter-actions button:hover {
+  background-color: #005FB2;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  color: white;
+}
+
+.filter-actions button:active {
+  background-color: #00396b;
+  color: white;
+}
+
+.filter-actions .filter-select-all {
+  background-color: #4CAF50;
+}
+
+.filter-actions .filter-select-all:hover {
+  background-color: #3e8e41;
+  color: white;
+}
+
+.filter-actions .filter-clear-all {
+  background-color: #f44336;
+}
+
+.filter-actions .filter-clear-all:hover {
+  background-color: #d32f2f;
+  color: white;
+}
+
+.scrolltable-cell a {
+  color: #006dcc;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}
+
+#result-table table {
+  border: none;
+}
+
+#result-table table tr td:first-child {
+  border-left: none;
+  padding-left: 8px;
+}
+
+#result-table table tr:hover>td {
+  background-color: #F3F2F2;
+}
+
+.scrolltable-scrolled {
+  position: relative;
+}
+
+.scrolltable-scrolled table {
+  border-collapse: collapse;
+  position: absolute;
+}
+
+.scrolltable-cell {
+  border: 1px solid #DDDBDA;
+  overflow: hidden;
+  padding: 0 4px;
+  background-color: white;
+  white-space: pre;
+  box-sizing: border-box;
+}
+
+.scrolltable-cell.header {
+  font-weight: 700;
+  background-color: #FAFAF9;
+  border-top: none;
+  padding-top: 7px;
+  padding-bottom: 7px;
+  position: relative;
+  padding-right: 50px;
+}
+
+.scrolltable-cell .header-copy-btn {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  /* transform: translateY(-50%); */
+  width: 16px;
+  height: 16px;
+  background-image: url('images/copy.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.scrolltable-cell .header-copy-btn:hover {
+  opacity: 1;
+}
+
+.scrolltable-cell a {
+  color: #006dcc;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}
+
+.pop-menu {
+  position: absolute;
+  padding: 7px 0;
+  background: rgb(255, 255, 255);
+  box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.16);
+  border: 1px solid rgb(221, 219, 218);
+  border-radius: 0.25rem;
+}
+
+.pop-menu.saveOptions {
+  top: 0;
+  margin: 102px 232px 0 0;
+  z-index: 2;
+}
+
+.pop-menu a {
+  display: block;
+  text-decoration: none;
+  color: rgb(0, 112, 210);
+  padding: 5px 15px;
+  display: flex;
+  align-items: center;
+}
+
+.pop-menu a .icon {
+  /* background-color: #706E6B; */
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  margin-right: 8px;
+}
+
+.pop-menu a.view-salesforce .icon {
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 1rem;
+  -webkit-mask-image: url(images/salesforce1.svg);
+  -webkit-mask-position: center;
+}
+
+.pop-menu a.view-inspector .icon {
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 1rem;
+  -webkit-mask-image: url(images/salesforce-inspector-logo.svg);
+  -webkit-mask-position: center;
+}
+
+/* Renamed to reflect new branding */
+.pop-menu a.view-inspector-pro .icon {
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 1rem;
+  -webkit-mask-image: url(images/salesforce-inspector-logo.svg);
+  -webkit-mask-position: center;
+}
+
+.pop-menu a.query-record .icon {
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 1rem;
+  -webkit-mask-image: url(images/record_lookup.svg);
+  -webkit-mask-position: center;
+  background-color: #706E6B;
+}
+
+.pop-menu a.copy-id .icon {
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 1rem;
+  -webkit-mask-image: url(images/copy.svg);
+  -webkit-mask-position: center;
+  background-color: #706E6B;
+}
+
+.pop-menu a.download-salesforce .icon {
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 1rem;
+  -webkit-mask-image: url(images/down.svg);
+  -webkit-mask-position: center;
+}
+
+.pop-menu a.download-salesforce .icon {
+  background-color: #61fab8;
+}
+
+.pop-menu a.download-salesforce {
+  cursor: pointer;
+}
+
+.pop-menu a.copy-id {
+  cursor: pointer;
+}
+
+.pop-menu a.view-salesforce .icon {
+  background-color: #009DDC;
+}
+
+.pop-menu a.view-inspector .icon {
+  background-color: #D8BE5F;
+}
+
+.pop-menu a:hover {
+  background-color: #F3F2F2;
+}
+
+.pop-menu a:active {
+  background-color: #ECEBEA;
+}

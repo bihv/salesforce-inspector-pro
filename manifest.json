@@ -79,7 +79,8 @@
         "limits.html",
         "field-creator.html",
         "options.html",
-        "event-monitor.html"
+        "event-monitor.html",
+        "apex-editor.html"
       ],
       "matches": [
         "https://*.salesforce.com/*",

@@ -152,6 +152,7 @@ class App extends React.PureComponent {
       "u": ["tab", "userTab"],
       "s": ["tab", "shortcutTab"],
       "r": ["tab", "orgTab"],
+      "c": ["click", "customMenuBtn"], // Add keyboard shortcut for our new menu item
       "Escape": ["", "quit"]
     };
     if (!actionMap[e.key]) {
@@ -321,6 +322,9 @@ class App extends React.PureComponent {
             ),
             h("div", {className: "slds-m-bottom_xx-small"},
               h("a", {ref: "eventMonitorBtn", href: eventMonitorHref, target: linkTarget, className: "page-button slds-button slds-button_neutral"}, h("span", {}, "Event ", h("u", {}, "M"), "onitor"))
+            ),
+            h("div", {className: "slds-m-bottom_xx-small"},
+              h("a", {ref: "customMenuBtn", href: "apex-editor.html?" + hostArg, target: linkTarget, className: "page-button slds-button slds-button_neutral"}, h("span", {}, "Apex ", h("u", {}, "C"), "oditor"))
             ),
             localStorage.getItem("popupGenerateTokenButton") !== "false" ? h("div", {className: "slds-m-bottom_xx-small"},
               h("a",
